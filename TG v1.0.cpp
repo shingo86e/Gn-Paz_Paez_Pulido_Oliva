@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include<conio.h>
+#include<math.h>
 #include <windows.h> 
 
 /*
@@ -21,6 +22,19 @@ correo:Luciano.Pulido@alu.frt.utn.edu.ar
 Legajo: 53397
 */
 
+struct fecha
+{
+	int dia,mes,anio;
+};
+
+
+struct NICKYPASSUSUARIOS
+{
+	char Nombre[50],Apellido[50],profesion[20],usuario[11],contrasenia[33];
+	fecha fechasIngreso;
+	int tipo;
+};
+
 void gotoxy(int x,int y)
 {
 	HANDLE hcon;
@@ -30,6 +44,100 @@ void gotoxy(int x,int y)
 	dwPos.Y=y;
 	SetConsoleCursorPosition(hcon,dwPos);
 }
+
+int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10])
+{
+	FILE *usuarios;
+	NICKYPASSUSUARIOS datos; 
+	char salir;
+	int opcion,contarCaracteres;
+	bool banderaIngreso=false, validar=true;
+	
+	usuarios=fopen("usuarios.dat","r+b");
+	if(usuarios==NULL)
+	{
+		fclose(usuarios);
+		usuarios=fopen("usuarios.dat","w+b");
+		if(usuarios==NULL)
+		{
+			printf("Error no se pudo abrir/crear el archivo, saliendo del programa...");
+			getch();
+			exit (1);
+		}
+	}
+	do
+	{
+		do
+		{
+			gotoxy(6,0);
+			printf("Registro Empleados");
+			printf("\n==============================");
+			printf("\n 1 - Ingreso de profesional");
+			printf("\n 2 - Ingreso de recepcionista");
+			scanf("%d",&opcion);
+			system("cls");
+			if(opcion <1 || opcion>2 || opcion-trunc(opcion)!=0)
+			{
+				printf("\nError! La opcion es valida");
+			}
+			else
+			{
+				banderaIngreso=true;
+			}
+		}while(opcion <1 || opcion>2 || opcion-trunc(opcion)!=0 && banderaIngreso==false);
+		if(opcion==1)
+		{
+			gotoxy(5,0);
+			printf("Registro Profesional");
+			printf("\n==============================");
+			datos.tipo=1;
+			printf("\nNombre: ");
+			_flushall();
+			gets(datos.Nombre);
+			printf("Apellido: ");
+			gets(datos.Apellido);
+			printf("Profesion: ");
+			gets(datos.profesion);
+			printf("Fecha de ingreso (dd/mm/aaa): ");
+			printf("\nDia: ");
+			scanf("%d",&datos.fechasIngreso.dia);
+			printf("Mes: ");
+			scanf("%d",&datos.fechasIngreso.mes);
+			printf("Anio: ");
+			scanf("%d",&datos.fechasIngreso.anio);
+			do
+			{
+				printf("Usuario: ");
+				gets(datos.usuario);
+				contarCaracteres=strlen(datos.usuario);
+				if(contarCaracteres<6 || contarCaracteres>10)validar=false;
+				for(int i=0;i<contarCaracteres;i++)
+				{
+					
+				}
+			}while(datos.usuario);
+			
+				/*Nombre de usuario: Quedará definido por una cantidad mínima de 6 caracteres y máxima de 10, los
+				cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}. Deberá cumplir con los siguientes
+				requisitos
+				:
+				1. Ser único para cada usuario registrado.
+				2. Comenzar con una letra minúscula.
+				3. Tener al menos 2 letras mayúsculas.
+				4. Tener como máximo 3 dígitos.
+				Ejemplos de nombres de usuario incorrectos: AbC123 (no cumple con b),
+				pTS!1234 (no cumple con d), g178Mci (no cumple con c), mARtin123gomez
+				(tiene más de 10 caracteres).
+				Ejemplos de nombres de usuario correctos: mARtin12, jo97!AR.
+				*/
+		}
+	}
+	while(salir!='N');
+	
+	
+	
+}
+
 void menuEspacios(char usuarioPrueba[10])
 {
 	int option;
@@ -119,6 +227,8 @@ void menuAdministracion(char usuarioPrueba[10])
 	getch();
 	system("cls");
 }
+
+
 
 main()
 {
