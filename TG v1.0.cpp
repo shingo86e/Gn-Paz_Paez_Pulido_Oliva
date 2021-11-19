@@ -50,7 +50,7 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10])
 	FILE *usuarios;
 	NICKYPASSUSUARIOS datos; 
 	char salir;
-	int opcion,contarCaracteres;
+	int opcion,contarCaracteres,contarMayusculas=0,contarDigit=0;
 	bool banderaIngreso=false, validar=true;
 	
 	usuarios=fopen("usuarios.dat","r+b");
@@ -111,6 +111,17 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10])
 				gets(datos.usuario);
 				contarCaracteres=strlen(datos.usuario);
 				if(contarCaracteres<6 || contarCaracteres>10)validar=false;
+				if(isupper(datos.usuario[0]))validar=false;
+				for(int i=0;i<contarCaracteres;i++)
+				{
+					if(isupper(datos.usuario[i]))contarMayusculas++;
+				}
+				if(contarMayusculas<2)validar=false;
+				for(int i=0;i<contarCaracteres;i++)
+				{
+					if(contarDigit(datos.usuario[i]))contarDigit++;
+				}
+				if(contarDigit>3)validar=false;
 				for(int i=0;i<contarCaracteres;i++)
 				{
 					
