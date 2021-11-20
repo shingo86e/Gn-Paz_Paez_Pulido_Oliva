@@ -3,6 +3,7 @@
 #include <string.h>
 #include<conio.h>
 #include<math.h>
+#include <ctype.h>
 #include <windows.h> 
 
 /*
@@ -45,11 +46,11 @@ void gotoxy(int x,int y)
 	SetConsoleCursorPosition(hcon,dwPos);
 }
 
-int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10])
+int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 {
 	FILE *usuarios;
 	NICKYPASSUSUARIOS datos; 
-	char salir;
+	char salir, ingresarNuevo;
 	int opcion,contarCaracteres,contarMayusculas=0,contarDigit=0;
 	bool banderaIngreso=false, validar=true;
 	
@@ -65,90 +66,101 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10])
 			exit (1);
 		}
 	}
+		
+	gotoxy(5,0);
+	if(tipo==1)printf("Registro Profesional");
+	gotoxy(5,0);
+	if(tipo==2)printf("Registro Recepcionista");
+	printf("\n==============================");
+	datos.tipo=1;
+	printf("\nNombre: ");
+	_flushall();
+	gets(datos.Nombre);
+	printf("Apellido: ");
+	gets(datos.Apellido);
+	printf("Profesion: ");
+	gets(datos.profesion);
+	printf("Fecha de ingreso (dd/mm/aaa): ");
+	printf("\nDia: ");
+	scanf("%d",&datos.fechasIngreso.dia);
+	printf("Mes: ");
+	scanf("%d",&datos.fechasIngreso.mes);
+	printf("Anio: ");
+	scanf("%d",&datos.fechasIngreso.anio);
+	system("cls");
 	do
 	{
-		do
+		gotoxy(7,0);
+		printf("Registro Usuario");
+		printf("\n==============================");
+		printf("\nDebera cumplir con los siguientes requisitos: ");
+		printf("\n1-Tener entre 6 y 10 caracteres.");
+		printf("\n2-Pueden ser letras, numeros y/o simbolos del conjunto {+,-,/,*,?,¿,!,¡}.");
+		printf("\n3-Ser unico para cada usuario registrado.\n");
+		printf("4-Comenzar con una letra minuscula.\n");
+		printf("5-Tener al menos 2 letras mayusculas.");
+		printf("\n6-Tener como maximo 3 digitos.");
+		printf("\nEjemplos de nombres de usuario incorrectos: AbC123 (no cumple con 4),\npTS!1234 (no cumple con 6), g178Mci (no cumple con 5), mARtin123gomez\n(tiene mas de 10 caracteres).\nEjemplos de nombres de usuario correctos: mARtin12, jo97!AR.\n");
+		
+		/*Nombre de usuario: Cantidad mínima de 6 caracteres y máxima de 10,\nlos cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}. 
+		Deberá cumplir con los siguientes requisitos:\n
+		1. Ser único para cada usuario registrado.\n
+		2. Comenzar con una letra minúscula.\n
+		3. Tener al menos 2 letras mayúsculas.\n
+		4. Tener como máximo 3 dígitos.\n
+		Ejemplos de nombres de usuario incorrectos: AbC123 (no cumple con b),\npTS!1234 (no cumple con d), g178Mci (no cumple con c), mARtin123gomez\n(tiene más de 10 caracteres).\nEjemplos de nombres de usuario correctos: mARtin12, jo97!AR.\n
+		*/
+		printf("Usuario: ");
+		_flushall();
+		gets(datos.usuario);
+		contarCaracteres=strlen(datos.usuario);
+		if(contarCaracteres<6 || contarCaracteres>10)validar=false;
+		for(int i=0;i<contarCaracteres;i++)
 		{
-			gotoxy(6,0);
-			printf("Registro Empleados");
-			printf("\n==============================");
-			printf("\n 1 - Ingreso de profesional");
-			printf("\n 2 - Ingreso de recepcionista");
-			scanf("%d",&opcion);
-			system("cls");
-			if(opcion <1 || opcion>2 || opcion-trunc(opcion)!=0)
+			if(isdigit(datos.usuario[i])||isalpha(datos.usuario[i])||ispunct(datos.usuario[i]))	
 			{
-				printf("\nError! La opcion es valida");
+				validar=true;
 			}
 			else
 			{
-				banderaIngreso=true;
+				validar=false;
 			}
-		}while(opcion <1 || opcion>2 || opcion-trunc(opcion)!=0 && banderaIngreso==false);
-		if(opcion==1)
-		{
-			gotoxy(5,0);
-			printf("Registro Profesional");
-			printf("\n==============================");
-			datos.tipo=1;
-			printf("\nNombre: ");
-			_flushall();
-			gets(datos.Nombre);
-			printf("Apellido: ");
-			gets(datos.Apellido);
-			printf("Profesion: ");
-			gets(datos.profesion);
-			printf("Fecha de ingreso (dd/mm/aaa): ");
-			printf("\nDia: ");
-			scanf("%d",&datos.fechasIngreso.dia);
-			printf("Mes: ");
-			scanf("%d",&datos.fechasIngreso.mes);
-			printf("Anio: ");
-			scanf("%d",&datos.fechasIngreso.anio);
-			do
-			{
-				printf("Usuario: ");
-				gets(datos.usuario);
-				contarCaracteres=strlen(datos.usuario);
-				if(contarCaracteres<6 || contarCaracteres>10)validar=false;
-				if(isupper(datos.usuario[0]))validar=false;
-				for(int i=0;i<contarCaracteres;i++)
-				{
-					if(isupper(datos.usuario[i]))contarMayusculas++;
-				}
-				if(contarMayusculas<2)validar=false;
-				for(int i=0;i<contarCaracteres;i++)
-				{
-					if(contarDigit(datos.usuario[i]))contarDigit++;
-				}
-				if(contarDigit>3)validar=false;
-				for(int i=0;i<contarCaracteres;i++)
-				{
-					
-				}
-			}while(datos.usuario);
-			
-				/*Nombre de usuario: Quedará definido por una cantidad mínima de 6 caracteres y máxima de 10, los
-				cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}. Deberá cumplir con los siguientes
-				requisitos
-				:
-				1. Ser único para cada usuario registrado.
-				2. Comenzar con una letra minúscula.
-				3. Tener al menos 2 letras mayúsculas.
-				4. Tener como máximo 3 dígitos.
-				Ejemplos de nombres de usuario incorrectos: AbC123 (no cumple con b),
-				pTS!1234 (no cumple con d), g178Mci (no cumple con c), mARtin123gomez
-				(tiene más de 10 caracteres).
-				Ejemplos de nombres de usuario correctos: mARtin12, jo97!AR.
-				*/
 		}
+		if(isupper(datos.usuario[0]))validar=false;
+		for(int i=0;i<contarCaracteres;i++)
+		{
+			if(isupper(datos.usuario[i]))contarMayusculas++;
+		}
+		if(contarMayusculas<2)validar=false;
+		for(int i=0;i<contarCaracteres;i++)
+		{
+			if(isdigit(datos.usuario[i]))contarDigit++;
+		}
+		if(contarDigit>3)validar=false;
+		if(validar==false)
+		{
+			printf("\nERROR! El nombre de usuario no cumple con los requisitos");
+			printf("\n\nIngresar Nuevo nombre de usuario? S/N");
+			printf("\nOpcion: ");
+			salir=getch();
+			if(salir<='z' && salir >='a')salir=salir-'a'+'A';
+			system("cls");					
+		}
+		else
+		{
+			printf("\nRegistro de Usuario Exitoso!");
+			getch();
+			system("cls");
+		}		
+	}while(validar==false && salir=='S');
+	if(validar==true)
+	{
+		printf("\nRegistre clave: ");
 	}
-	while(salir!='N');
-	
-	
-	
+	system("cls");	
 }
-
+	
+	
 void menuEspacios(char usuarioPrueba[10])
 {
 	int option;
@@ -181,7 +193,7 @@ void menuEspacios(char usuarioPrueba[10])
 void menuRecepcion(char usuarioPrueba[10])
 {
 	int option;
-	
+		
 	do
 	{
 		gotoxy(1,0);
@@ -197,8 +209,8 @@ void menuRecepcion(char usuarioPrueba[10])
 		printf("==========================");
 		gotoxy(21,7);
 		scanf("%d",&option);
-	
-	}while(option!=0);
+		system("cls");
+	}while(option!=0);	
 	if(option==0)
 	{
 		printf("\nSaliendo del programa...");
@@ -210,7 +222,9 @@ void menuRecepcion(char usuarioPrueba[10])
 
 void menuAdministracion(char usuarioPrueba[10])
 {
+	const int prof=1,recep=2;
 	int option;
+	char usuario[10],contraseniaPrueba[10];
 	
 	do
 	{
@@ -228,7 +242,39 @@ void menuAdministracion(char usuarioPrueba[10])
 		printf("==========================");
 		gotoxy(21,8);
 		scanf("%d",&option);
-	
+		system("cls");
+		switch(option)
+		{
+			case 1:
+				{
+					usuariosyClaves(usuario,contraseniaPrueba,prof);
+					break;
+					
+				}
+			case 2:
+				{
+					usuariosyClaves(usuario,contraseniaPrueba,recep);
+					break;
+				}
+			case 3:
+				{
+					
+					break;
+				}
+			default:
+				{
+					if(option!=0)
+					{
+						printf("\nOpcion no valida");
+					}
+					else
+					{
+						printf("\nSaliendo del programa...");
+					}
+					getch();
+					system("cls");
+				}	
+		}
 	}while(option!=0);
 	if(option==0)
 	{
