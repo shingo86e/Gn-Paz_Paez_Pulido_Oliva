@@ -31,7 +31,7 @@ struct fecha
 
 struct NICKYPASSUSUARIOS
 {
-	char Nombre[50],Apellido[50],profesion[20],usuario[11],contrasenia[33];
+	char Nombre[50],Apellido[50],profesion[50],usuario[50],contrasenia[50];
 	fecha fechasIngreso;
 	int tipo;
 };
@@ -50,8 +50,8 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 {
 	FILE *usuarios;
 	NICKYPASSUSUARIOS datos; 
-	char salir, ingresarNuevo;
-	int opcion,contarCaracteres,contarMayusculas=0,contarDigit=0;
+	char salir, ingresarNuevo, usuario[50];
+	int opcion,contarCaracteres,contarMayusculas=0,contarMinusculas=0,contarDigit=0,contarPuntuacion=0,contarEspacios=0,comparar;
 	bool banderaIngreso=false, validar=true;
 	
 	usuarios=fopen("usuarios.dat","r+b");
@@ -112,12 +112,19 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 		*/
 		printf("Usuario: ");
 		_flushall();
-		gets(datos.usuario);
-		contarCaracteres=strlen(datos.usuario);
+		gets(usuario);
+		rewind(usuarios);
+		while(!feof(usuarios))
+		{
+			fread(&datos.usuario,sizeof(NICKYPASSUSUARIOS),1,usuarios);
+			comparar=strcmp(datos.usuario,usuario);
+			if(comparar==0)validar=false;
+		}
+		contarCaracteres=strlen(usuario);
 		if(contarCaracteres<6 || contarCaracteres>10)validar=false;
 		for(int i=0;i<contarCaracteres;i++)
 		{
-			if(isdigit(datos.usuario[i])||isalpha(datos.usuario[i])||ispunct(datos.usuario[i]))	
+			if(isdigit(usuario[i])||isalpha(usuario[i])||ispunct(usuario[i]))	
 			{
 				validar=true;
 			}
@@ -126,15 +133,15 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 				validar=false;
 			}
 		}
-		if(isupper(datos.usuario[0]))validar=false;
+		if(isupper(usuario[0]))validar=false;
 		for(int i=0;i<contarCaracteres;i++)
 		{
-			if(isupper(datos.usuario[i]))contarMayusculas++;
+			if(isupper(usuario[i]))contarMayusculas++;
 		}
 		if(contarMayusculas<2)validar=false;
 		for(int i=0;i<contarCaracteres;i++)
 		{
-			if(isdigit(datos.usuario[i]))contarDigit++;
+			if(isdigit(usuario[i]))contarDigit++;
 		}
 		if(contarDigit>3)validar=false;
 		if(validar==false)
@@ -148,6 +155,7 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 		}
 		else
 		{
+			strcpy(datos.usuario,usuario);
 			printf("\nRegistro de Usuario Exitoso!");
 			getch();
 			system("cls");
@@ -155,7 +163,98 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 	}while(validar==false && salir=='S');
 	if(validar==true)
 	{
-		printf("\nRegistre clave: ");
+		do
+		{
+			gotoxy(6,0);
+			printf("Registre Contrasenia");
+			printf("\n==============================");
+			printf("\nDebera cumplir con los siguientes requisitos: ");
+			printf("\n1. Debera contener al menos una letra mayuscula, una letra minuscula y un numero.");
+			printf("\n2. No podra contener ningun caracter de puntuacion, ni acentos, ni espacios.Solo caracteres alfanumericos.");
+			printf("\n3. Debera tener entre 6 y 32 caracteres.");
+			printf("\n4. No debe tener mas de 3 caracteres numericos consecutivos.");
+			printf("\n5. No debe tener 2 caracteres consecutivos que refieran a letras alfabeticamente consecutivas (ascendentemente).");
+			printf("\nEjemplos de contrasenias mal formadas: \nAch32 (no cumple con 3), \ndorit1234 (no cumple la regla 1 ni la 4), \nsA;gotAP.10 (no cumple con 2), \naBuel123 (no cumple con 5).");
+			printf("\nEjemplo de contrasenias bien formadas: Achus32, 125Af89, aLejo123, DORItO45,4aC2sa.");
+			_flushall();
+			printf("\n\nContrasenia: ");
+			gets(datos.contrasenia);
+			contarCaracteres=strlen(datos.contrasenia);
+			for(int i=0;i<contarCaracteres;i++)
+			{
+				if(isalpha(datos.contrasenia[i]))
+				{
+					if(isupper(datos.contrasenia[i]))contarMayusculas++;
+					if(islower(datos.contrasenia[i]))contarMinusculas++;
+					if(isalpha(datos.contrasenia[i]))
+					{
+						if(isalpha(datos.contrasenia[i+1]))
+						{
+							if(datos.contrasenia[i]==datos.contrasenia[i+1]--)validar=false;
+						}
+					}
+				}
+				
+				if(isdigit(datos.contrasenia[i]))
+				{
+					contarDigit++;
+					if(isdigit(datos.contrasenia[i+1]))
+					{
+						if(isdigit(datos.contrasenia[i+2]))
+						{
+							if(datos.contrasenia[i]==datos.contrasenia[i+1]-- && datos.contrasenia[i+1]==datos.contrasenia[i+2]--)validar=false;
+						}
+					}
+				}
+				
+				if(ispunct(datos.contrasenia[i]))contarPuntuacion++;
+				if(isspace(datos.contrasenia[i]))contarEspacios++;
+				if(datos.contrasenia[i])
+				if(datos.contrasenia[i]==datos.contrasenia[i+1]+1 && datos.contrasenia[i+1]==datos.contrasenia[i+2]+1);
+			}
+			if(contarMayusculas<1)validar=false;
+			if(contarMinusculas<1)validar=false;
+			if(contarDigit<1)validar=false;
+			if(contarPuntuacion>0)validar=false;
+			if(contarEspacios>0)validar=false;
+			if(contarCaracteres<3 || contarCaracteres>32)validar=false;
+			if(validar==false)
+			{
+				printf("\nERROR! La contrasenia no cumple con los requisitos");
+				printf("\n\nIngresar Nueva contrasenia? S/N");
+				printf("\nOpcion: ");
+				salir=getch();
+				if(salir<='z' && salir >='a')salir=salir-'a'+'A';
+				system("cls");					
+			}
+			else
+			{
+				printf("\nRegistro de contrasenia Exitosa!");
+				getch();
+				system("cls");
+			}
+		}while(validar==false && salir=='S');
+		
+		
+		/*Contraseña: Su conformación no podrá darse al azar, sino que deberá respetar lo siguiente:
+		1. Deberá contener al menos una letra mayúscula, una letra minúscula y un número.
+		2. No podrá contener ningún carácter de puntuación, ni acentos, ni espacios. Sólo caracteres
+		alfanuméricos.
+		3. Deberá tener entre 6 y 32 caracteres.
+		4. No debe tener más de 3 caracteres numéricos consecutivos.
+		5. No debe tener 2 caracteres consecutivos que refieran a letras alfabéticamente consecutivas
+		(ascendentemente). Este criterio es válido tanto para letras mayúsculas, minúsculas o combinación de
+		ambas.
+		Ejemplos de contraseñas mal formadas: Ach32 (no cumple con c), dorit1234
+		(no cumple la regla a ni la d), sA;gotAP.10 (no cumple con b), aBuel123 (no
+		cumple con e).
+		Ejemplo de contraseñas bien formadas: Achus32, 125Af89, aLejo123, DORItO45,
+		4aC2sa.
+		*/
+	}
+	if(validar==true)
+	{
+		fwrite(&datos,sizeof(NICKYPASSUSUARIOS),1,usuarios);
 	}
 	system("cls");	
 }
