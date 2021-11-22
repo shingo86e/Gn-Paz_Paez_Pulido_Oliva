@@ -29,14 +29,21 @@ struct fecha
 };
 
 
-struct NICKYPASSUSUARIOS
+struct NICKYPASSUSUARIOS //registro para la carga de datos del personal
 {
 	char Nombre[50],Apellido[50],profesion[50],usuario[50],contrasenia[50];
 	fecha fechasIngreso;
-	int tipo;
+	int tipo;//tipo usado para seleccionar entre recepcionista o profesional
 };
 
-void gotoxy(int x,int y)
+struct registroClientes
+{
+	char nombre[50],apellido[50],domicilio[100];
+	fecha fechaNac;
+	int edad, DNI, numRegistro=0;
+};
+
+void gotoxy(int x,int y)//funcion usada para poder posicionar lo que se muestra en pantalla con x columnas e y filas
 {
 	HANDLE hcon;
 	hcon=GetStdHandle (STD_OUTPUT_HANDLE);
@@ -46,7 +53,7 @@ void gotoxy(int x,int y)
 	SetConsoleCursorPosition(hcon,dwPos);
 }
 
-int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
+void usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)//funcion para el ingreso de usuarios desde funcion Espacios Admin
 {
 	FILE *usuarios;
 	NICKYPASSUSUARIOS datos; 
@@ -54,12 +61,12 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 	int opcion,contarCaracteres,contarMayusculas=0,contarMinusculas=0,contarDigit=0,contarPuntuacion=0,contarEspacios=0,comparar;
 	bool banderaIngreso=false, validar=true;
 	
-	usuarios=fopen("usuarios.dat","r+b");
-	if(usuarios==NULL)
+	usuarios=fopen("usuarios.dat","r+b");//abre el archivo en lectura mas escritura
+	if(usuarios==NULL)// si no existe lo abre en forma de escritura
 	{
 		fclose(usuarios);
 		usuarios=fopen("usuarios.dat","w+b");
-		if(usuarios==NULL)
+		if(usuarios==NULL)// si da error al abrir el archivo informa el error y cierra el programa
 		{
 			printf("Error no se pudo abrir/crear el archivo, saliendo del programa...");
 			getch();
@@ -114,15 +121,15 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 		_flushall();
 		gets(usuario);
 		rewind(usuarios);
-		while(!feof(usuarios))
+		while(!feof(usuarios))//1. Ser único para cada usuario registrado.
 		{
 			fread(&datos.usuario,sizeof(NICKYPASSUSUARIOS),1,usuarios);
 			comparar=strcmp(datos.usuario,usuario);
 			if(comparar==0)validar=false;
 		}
 		contarCaracteres=strlen(usuario);
-		if(contarCaracteres<6 || contarCaracteres>10)validar=false;
-		for(int i=0;i<contarCaracteres;i++)
+		if(contarCaracteres<6 || contarCaracteres>10)validar=false;//Cantidad mínima de 6 caracteres y máxima de 10
+		for(int i=0;i<contarCaracteres;i++)//los cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}
 		{
 			if(isdigit(usuario[i])||isalpha(usuario[i])||ispunct(usuario[i]))	
 			{
@@ -133,13 +140,13 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 				validar=false;
 			}
 		}
-		if(isupper(usuario[0]))validar=false;
-		for(int i=0;i<contarCaracteres;i++)
+		if(isupper(usuario[0]))validar=false;//Comenzar con una letra minúscula.
+		for(int i=0;i<contarCaracteres;i++)//Tener al menos 2 letras mayúsculas.
 		{
 			if(isupper(usuario[i]))contarMayusculas++;
 		}
 		if(contarMayusculas<2)validar=false;
-		for(int i=0;i<contarCaracteres;i++)
+		for(int i=0;i<contarCaracteres;i++)//Tener como máximo 3 dígitos.
 		{
 			if(isdigit(usuario[i]))contarDigit++;
 		}
@@ -180,7 +187,7 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 			printf("\n\nContrasenia: ");
 			gets(datos.contrasenia);
 			contarCaracteres=strlen(datos.contrasenia);
-			for(int i=0;i<contarCaracteres;i++)
+			for(int i=0;i<contarCaracteres;i++)//Deberá contener al menos una letra mayúscula, una letra minúscula y un número.
 			{
 				if(isalpha(datos.contrasenia[i]))
 				{
@@ -190,27 +197,27 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 					{
 						if(isalpha(datos.contrasenia[i+1]))
 						{
-							if(datos.contrasenia[i]==datos.contrasenia[i+1]--)validar=false;
+							if(datos.contrasenia[i]==datos.contrasenia[i+1]--)validar=false;//validar que no sean letras consecutivas
 						}
 					}
 				}
 				
 				if(isdigit(datos.contrasenia[i]))
 				{
-					contarDigit++;
+					contarDigit++;//contar cantidad de numeros
 					if(isdigit(datos.contrasenia[i+1]))
 					{
 						if(isdigit(datos.contrasenia[i+2]))
 						{
-							if(datos.contrasenia[i]==datos.contrasenia[i+1]-- && datos.contrasenia[i+1]==datos.contrasenia[i+2]--)validar=false;
+							if(datos.contrasenia[i]==datos.contrasenia[i+1]-- && datos.contrasenia[i+1]==datos.contrasenia[i+2]--)validar=false;//validar que no hayan 3 numeros consecutivos
 						}
 					}
 				}
 				
-				if(ispunct(datos.contrasenia[i]))contarPuntuacion++;
-				if(isspace(datos.contrasenia[i]))contarEspacios++;
-				if(datos.contrasenia[i])
-				if(datos.contrasenia[i]==datos.contrasenia[i+1]+1 && datos.contrasenia[i+1]==datos.contrasenia[i+2]+1);
+				if(ispunct(datos.contrasenia[i]))contarPuntuacion++;//contar signos de puntuacion
+				if(isspace(datos.contrasenia[i]))contarEspacios++;//contar espacios
+				
+			
 			}
 			if(contarMayusculas<1)validar=false;
 			if(contarMinusculas<1)validar=false;
@@ -258,7 +265,66 @@ int usuariosyClaves(char usuarioPrueba[10],char contraseniaPrueba[10],int tipo)
 	}
 	system("cls");	
 }
+
+void registrarClientes(registroClientes datosClientes)
+{
+	char salir;
+	FILE *CLI;
+	int numRegistro;
+	CLI=fopen("clientes.dat","r+b");//abre el archivo en lectura mas escritura
+	if(CLI==NULL)// si no existe lo abre en forma de escritura
+	{
+		fclose(CLI);
+		CLI=fopen("clientes.dat","w+b");
+		if(CLI==NULL)// si da error al abrir el archivo informa el error y cierra el programa
+		{
+			printf("Error no se pudo abrir/crear el archivo, saliendo del programa...");
+			getch();
+			exit (1);
+		}
+	}
+	do
+	{
+		gotoxy(10,0);
+		printf("Registro de clientes");
+		printf("\n========================================");
+		printf("Nombre: ");
+		printf("Apellido: ");
+		printf("Domicilio: ");
+		printf("Fecha de nacimiento: ");
+		printf("Edad: ");
+		printf("\n========================================");
+		
+		_flushall();
+		gotoxy(8,2);
+		gets(datosClientes.nombre);
+		gotoxy(10,3);
+		gets(datosClientes.apellido);
+		gotoxy(11,4);
+		gets(datosClientes.domicilio);
+		gotoxy(21,5);
+		scanf("%d",&datosClientes.fechaNac);
+		gotoxy(6,6);
+		scanf("%d",&datosClientes.edad);
+		while(!feof(CLI))//busca en la base de datos de clientes y le suma 1 mas al numero de registro.
+		{
+			fread(&datosClientes.numRegistro,sizeof(registroClientes),1,CLI);
+			if(!feof(CLI))
+			{
+				numRegistro=datosClientes.numRegistro;
+			}
+		}
+		datosClientes.numRegistro++;
+		printf("\nNumero de Registro: %06d",datosClientes.numRegistro);
+		fseek(CLI,-sizeof(registroClientes),2);
+		fwrite(&datosClientes.numRegistro,sizeof(registroClientes),1,CLI);
+		
+	}while(salir=='N');	
+		
 	
+	fclose(CLI);
+	system("cls");
+}
 	
 void menuEspacios(char usuarioPrueba[10])
 {
@@ -292,7 +358,7 @@ void menuEspacios(char usuarioPrueba[10])
 void menuRecepcion(char usuarioPrueba[10])
 {
 	int option;
-		
+	registroClientes datosClientes;	
 	do
 	{
 		gotoxy(1,0);
@@ -309,6 +375,38 @@ void menuRecepcion(char usuarioPrueba[10])
 		gotoxy(21,7);
 		scanf("%d",&option);
 		system("cls");
+		switch(option)
+		{
+			case 1:
+				{
+					registrarClientes(datosClientes);
+					break;
+					
+				}
+			case 2:
+				{
+					
+					break;
+				}
+			case 3:
+				{
+					
+					break;
+				}
+			default:
+				{
+					if(option!=0)
+					{
+						printf("\nOpcion no valida");
+					}
+					else
+					{
+						printf("\nSaliendo del programa...");
+					}
+					getch();
+					system("cls");
+				}	
+		}
 	}while(option!=0);	
 	if(option==0)
 	{
@@ -319,11 +417,11 @@ void menuRecepcion(char usuarioPrueba[10])
 	system("cls");
 }
 
-void menuAdministracion(char usuarioPrueba[10])
+void menuAdministracion(char usuarioPrueba[10])//recepcion en funcion de usuario ficticio, posteriormente debe recibir us y pass que coincida con una BD.
 {
-	const int prof=1,recep=2;
+	const int prof=1,recep=2;//constantes para enviar a la creacion de usuario al seleccionar en el menu recep o prof.
 	int option;
-	char usuario[10],contraseniaPrueba[10];
+	char usuario[10],contraseniaPrueba[10];//contrasenia ficticia, aun hay que hacer la base de datos de admin
 	
 	do
 	{
@@ -390,15 +488,15 @@ main()
 {
 	//seleccion de menu de usuarios
 	int usuariosMenu;
-	char usuarioPrueba[10], contraseniaPrueba[10];
+	char usuarioPrueba[10], contraseniaPrueba[10];//usuarios y contrasenias ficticias a modo de ir creando el programa, posteriormente seran incluidas en una base de datos para los usuarios de administracion.
 	bool b=false;
 	
-	//::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
-	system("color 1A");	
+	//::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000); //mostrar en pantalla completa
+	system("color 1A");	//color del programa
 	
 	do
 	{
-		gotoxy(60,1);
+		gotoxy(60,1); // logo de la UTN
 		printf("* *   * *   * *");
 		gotoxy(60,2);
 		printf("* *   * *   * *");
@@ -433,23 +531,28 @@ main()
 		scanf("%d",&usuariosMenu);
 		system("cls");
 		
-		/** *   * *   * *
-		* *   * *   * *
-		  * * * * * *
-		* * * * * * * *
-		* * * * * * * *
-		  * * * * * *
-		* *   * *   * *
-		* *   * *   * *  */
-		
 		switch(usuariosMenu)
 		{
 			case 1:
 				{
 					//Modulo Espacios
-					printf("\nIngrese Nombre de Usuario: ");
-					_flushall();
-					gets(usuarioPrueba);
+					do
+					{
+						gotoxy(6,0);
+						printf("Modulo Espacios");
+						printf("\n==========================");
+						printf("\nIngrese Nombre de Usuario: ");
+						printf("\nIngrese Contrasenia: ");
+						printf("\n==========================");
+						_flushall();
+						gotoxy(27,2);
+						gets(usuarioPrueba);
+						gotoxy(21,3);
+						gets(contraseniaPrueba);
+						b=true; //esta bandera posteriormente validará que el usuario y contrasenia sea la correcta.
+												
+					}
+					while(b==false);
 					system("cls");
 					menuEspacios(usuarioPrueba);
 					break;
@@ -457,9 +560,23 @@ main()
 			case 2:
 				{
 					//Modulo Recepcion
-					printf("\nIngrese Nombre de Usuario: ");
-					_flushall();
-					gets(usuarioPrueba);
+					do
+					{
+						gotoxy(5,0);
+						printf("Modulo Recepcion");
+						printf("\n==========================");
+						printf("\nIngrese Nombre de Usuario: ");
+						printf("\nIngrese Contrasenia: ");
+						printf("\n==========================");
+						_flushall();
+						gotoxy(27,2);
+						gets(usuarioPrueba);
+						gotoxy(21,3);
+						gets(contraseniaPrueba);
+						b=true; //esta bandera posteriormente validará que el usuario y contrasenia sea la correcta.
+												
+					}
+					while(b==false);
 					system("cls");
 					menuRecepcion(usuarioPrueba);
 					break;
@@ -480,7 +597,7 @@ main()
 						gets(usuarioPrueba);
 						gotoxy(21,3);
 						gets(contraseniaPrueba);
-						b=true;
+						b=true;//esta bandera posteriormente validará que el usuario y contrasenia sea la correcta.
 												
 					}
 					while(b==false);
