@@ -288,11 +288,12 @@ void registrarClientes(registroClientes datosClientes)
 		gotoxy(10,0);
 		printf("Registro de clientes");
 		printf("\n========================================");
-		printf("Nombre: ");
-		printf("Apellido: ");
-		printf("Domicilio: ");
-		printf("Fecha de nacimiento: ");
-		printf("Edad: ");
+		printf("\nNombre: ");
+		printf("\nApellido: ");
+		printf("\nDomicilio: ");
+		printf("\nFecha de nacimiento: ");
+		printf("\nEdad: ");
+		printf("\nNumero de Registro: ");
 		printf("\n========================================");
 		
 		_flushall();
@@ -303,7 +304,15 @@ void registrarClientes(registroClientes datosClientes)
 		gotoxy(11,4);
 		gets(datosClientes.domicilio);
 		gotoxy(21,5);
-		scanf("%d",&datosClientes.fechaNac);
+		scanf("%d",&datosClientes.fechaNac.dia);
+		gotoxy(23,5);
+		printf("/");
+		gotoxy(24,5);
+		scanf("%d",&datosClientes.fechaNac.mes);
+		gotoxy(26,5);
+		printf("/");
+		gotoxy(27,5);
+		scanf("%d",&datosClientes.fechaNac.anio);
 		gotoxy(6,6);
 		scanf("%d",&datosClientes.edad);
 		while(!feof(CLI))//busca en la base de datos de clientes y le suma 1 mas al numero de registro.
@@ -315,11 +324,16 @@ void registrarClientes(registroClientes datosClientes)
 			}
 		}
 		datosClientes.numRegistro++;
-		printf("\nNumero de Registro: %06d",datosClientes.numRegistro);
+		gotoxy(20,7);
+		printf("%06d",datosClientes.numRegistro);
 		fseek(CLI,-sizeof(registroClientes),2);
 		fwrite(&datosClientes.numRegistro,sizeof(registroClientes),1,CLI);
-		
-	}while(salir=='N');	
+		printf("\n\nDesea ingresar otro cliente? S/N");
+		printf("\nOpcion: ");
+		salir=getch();
+		if(salir<='z' && salir>='a')salir=salir-'a'+'A';
+		system("cls");
+	}while(salir=='S');	
 		
 	
 	fclose(CLI);
