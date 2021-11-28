@@ -84,7 +84,7 @@ void MenuEspacios(cuentasProfe cuenta);
 void MenuRecepcion(usuarios cuenta);
 void MenuAdministracion();
 bool Login(int tipo, cuentasProfe& cP, usuarios& cR);
-void ListarEspera();
+void ListarEspera(cuentasProfe pro);
 void RegistrarEvolucion();
 void RegistrarCliente();
 void RegistrarTurno();
@@ -284,7 +284,9 @@ void MenuEspacios(cuentasProfe cuenta)
 		switch(option)
 		{
 			case 1:
-				
+				system("cls");
+				ListarEspera(cuenta);
+				break;
 				
 			case 2:
 				
@@ -310,19 +312,60 @@ void MenuEspacios(cuentasProfe cuenta)
 	system("cls");
 }
 
-void ListarEspera()
+void ListarEspera(cuentasProfe pro)
 {
 	FILE *Turnos;
+	FILE *Clientes;
 	turnos reg;
+	cliente cli;
+	fecha actual;
+	int b = 0;
+	int i = 0;
+	
+	printf("Indique la fecha\n");
+	printf("Dia: ");
+	scanf("%d", &actual.dia);
+	printf("Mes: ");
+	scanf("%d", &actual.mes);
+	printf("Anio: ");
+	scanf("%d", &actual.anio);
+	
+	system("cls");
 	
 	Turnos = fopen("Turnos.dat", "rb");
+	Clientes = fopen("Clientes.dat", "rb");
+	
+	rewind(Turnos);
+	
+	fread(&reg, sizeof(turnos), 1, Turnos);
 	
 	while(!feof(Turnos))
 	{
+		if((actual.dia == reg.fecAtencion.dia) && (actual.mes == reg.fecAtencion.mes) && (actual.anio == reg.fecAtencion.anio) && (reg.IDProfesional == pro.datos.ID) && !reg.atendido)
+		{
+			rewind(Clientes);
+			
+			while(!feof(Clientes) && b != 1)
+			{
+				fread(&cli, sizeof(cliente), 1, Clientes);
+				
+				if(reg.DNICliente == cli.DNI)
+				{
+					b = 1;
+					i++;
+					printf("[Turno %d] Nombre del Paciente: %s; DNI: %d; Domicilio: %s; Edad: %d; Peso: %.2f\n", i,cli.ApeNom, cli.DNI, cli.Domicilio, cli.edad, cli.Peso);
+				}
+			}
+		}
+		b = 0;
 		fread(&reg, sizeof(turnos), 1, Turnos);
-		
-		
 	}
+	
+	fclose(Turnos);
+	fclose(Clientes);
+	
+	getch();
+	system("cls");
 }
 
 void RegistrarEvolucion()
@@ -617,10 +660,6 @@ void RegistrarTurno()
 			return;
 		}
 	}while(!existe);
-	
-	printf("Detalle de atencion: ");
-	_flushall();
-	gets(reg.DetalleAtencion);
 	
 	fwrite(&reg, sizeof(turnos), 1, Turnos);
 	
