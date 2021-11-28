@@ -50,8 +50,8 @@ struct cliente
 	char ApeNom[50];
 	char Domicilio[50];
 	int DNI;
-	char Localidad[50];
 	fecha FecNacimiento;
+	int edad;
 	float Peso;
 	int Telefono;
 };
@@ -232,6 +232,7 @@ bool Login(int tipo, cuentasProfe& cP, usuarios& cR)
 				b = 1;
 				cP = auxP;
 				system("cls");
+				fclose(arch);
 				return true;
 			}
 		}
@@ -245,6 +246,7 @@ bool Login(int tipo, cuentasProfe& cP, usuarios& cR)
 				b = 1;
 				cR = auxR;
 				system("cls");
+				fclose(arch);
 				return true;
 			}
 		}
@@ -255,6 +257,7 @@ bool Login(int tipo, cuentasProfe& cP, usuarios& cR)
 		printf("\n\nNo existe usuario o contrasenia!");
 		getch();
 		system("cls");
+		fclose(arch);
 		return false;
 	}
 }
@@ -307,6 +310,26 @@ void MenuEspacios(cuentasProfe cuenta)
 	system("cls");
 }
 
+void ListarEspera()
+{
+	FILE *Turnos;
+	turnos reg;
+	
+	Turnos = fopen("Turnos.dat", "rb");
+	
+	while(!feof(Turnos))
+	{
+		fread(&reg, sizeof(turnos), 1, Turnos);
+		
+		
+	}
+}
+
+void RegistrarEvolucion()
+{
+	
+}
+
 void MenuRecepcion(usuarios cuenta)
 {
 	int option;
@@ -330,13 +353,16 @@ void MenuRecepcion(usuarios cuenta)
 		switch(option)
 		{
 			case 1:
-				
+				RegistrarCliente();
+				break;
 				
 			case 2:
-				
+				RegistrarTurno();
+				break;
 				
 			case 3:
-				
+				ListarAtenciones();
+				break;
 				
 			default:
 				if(option!=0)
@@ -357,6 +383,257 @@ void MenuRecepcion(usuarios cuenta)
 	}
 	getch();
 	system("cls");
+}
+
+void RegistrarCliente()
+{
+	FILE *arch;
+	cliente reg;
+	int b = 0;
+	
+	arch = fopen("Clientes.dat", "a+b");
+	
+	printf("====Registrar Cliente====\n");
+	printf("Apellido y Nombre: ");
+	_flushall();
+	gets(reg.ApeNom);
+	
+	printf("Domicilio: ");
+	_flushall();
+	gets(reg.Domicilio);
+	
+	printf("DNI: ");
+	scanf("%d", &reg.DNI);
+	
+	printf("Fecha de Nacimiento\n");
+	printf("Dia: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El dia debe ser entre 1 y 31\n");
+			printf("Dia: ");
+		}
+		scanf("%d", &reg.FecNacimiento.dia);
+		b = 1;
+	}while(reg.FecNacimiento.dia < 1 || reg.FecNacimiento.dia > 31);
+	
+	b = 0;
+	
+	printf("Mes: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El mes debe ser entre 1 y 12\n");
+			printf("Mes: ");
+		}
+		scanf("%d", &reg.FecNacimiento.mes);
+		b = 1;
+	}while(reg.FecNacimiento.mes < 1 || reg.FecNacimiento.mes > 12);
+	
+	b = 0;
+	
+	printf("Anio: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El anio debe ser mayor que 0\n");
+			printf("Anio: ");
+		}
+		scanf("%d", &reg.FecNacimiento.anio);
+		b = 1;
+	}while(reg.FecNacimiento.anio < 1);
+	
+	b = 0;
+	
+	printf("Peso: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El peso debe ser mayor que 0\n");
+			printf("Peso: ");
+		}
+		scanf("%f", &reg.Peso);
+		b = 1;
+	}while(reg.Peso < 1);
+	
+	b = 0;
+	
+	printf("Telefono: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El Telefono debe ser mayor que 0\n");
+			printf("Anio: ");
+		}
+		scanf("%d", &reg.Telefono);
+		b = 1;
+	}while(reg.Telefono < 1);
+	
+	b = 0;
+	
+	reg.edad = 2021 - reg.FecNacimiento.anio;
+	if(reg.FecNacimiento.mes < 12)
+	{
+		if(reg.FecNacimiento.dia < 12)
+		{
+			reg.edad--;
+		}
+	}
+	
+	fwrite(&reg, sizeof(cliente), 1, arch);
+	fclose(arch);
+	
+	getch();
+	system("cls");
+}
+
+void RegistrarTurno()
+{
+	FILE *Turnos;
+	FILE *Pro;
+	FILE *Clientes;
+	cuentasProfe profesionales[100];
+	cliente clientes[100];
+	turnos reg;
+	int iP = 0;
+	int iC = 0;
+	int b = 0;
+	bool existe = false;
+	int salir;
+	
+	Pro = fopen("Profesionales.dat", "rb");
+	Clientes = fopen("Clientes.dat", "rb");
+	Turnos = fopen("Turnos.dat", "a+b");
+	
+	while(!feof(Pro))
+	{
+		fread(&profesionales[iP], sizeof(cuentasProfe), 1, Pro);
+		iP++;
+	}
+	
+	while(!feof(Clientes))
+	{
+		fread(&clientes[iC], sizeof(cliente), 1, Clientes);
+		iC++;
+	}
+	
+	printf("====Registrar Turno====\n");
+	
+	do
+	{
+		printf("ID del profesional: ");
+		scanf("%d", &reg.IDProfesional);
+		
+		for(int j = 0; j < iP; j++)
+		{
+			if(profesionales[j].datos.ID == reg.IDProfesional)
+			{
+				existe = true;
+			}
+		}
+		
+		if(!existe)
+		{
+			printf("Ingrese una ID valida!");
+		}
+	}while(!existe);
+	
+	existe = false;
+	
+	printf("Fecha de atencion\n");
+	printf("Dia: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El dia debe ser entre 1 y 31\n");
+			printf("Dia: ");
+		}
+		scanf("%d", &reg.fecAtencion.dia);
+		b = 1;
+	}while(reg.fecAtencion.dia < 1 || reg.fecAtencion.dia > 31);
+	
+	b = 0;
+	
+	printf("Mes: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El mes debe ser entre 1 y 12\n");
+			printf("Mes: ");
+		}
+		scanf("%d", &reg.fecAtencion.mes);
+		b = 1;
+	}while(reg.fecAtencion.mes < 1 || reg.fecAtencion.mes > 12);
+	
+	b = 0;
+	
+	printf("Anio: ");
+	do
+	{
+		if(b != 0)
+		{
+			printf("Error! El anio debe ser mayor que 0\n");
+			printf("Anio: ");
+		}
+		scanf("%d", &reg.fecAtencion.anio);
+		b = 1;
+	}while(reg.fecAtencion.anio < 1);
+	
+	b = 0;
+	
+	do
+	{
+		printf("DNI del cliente: ");
+		scanf("%d", &reg.DNICliente);
+		
+		for(int j = 0; j < iC; j++)
+		{
+			if(clientes[j].DNI == reg.DNICliente)
+			{
+				existe = true;
+			}
+		}
+		
+		if(!existe)
+		{
+			printf("Ingrese un DNI valido! Debe registrar al cliente antes de darle un turno.");
+			printf("\nDesea salir de esta funcion? 1-No 2-Si: ");
+			scanf("%d", &salir);
+		}
+		
+		if(salir == 2)
+		{
+			fclose(Turnos);
+			fclose(Pro);
+			fclose(Clientes);
+			system("cls");
+			return;
+		}
+	}while(!existe);
+	
+	printf("Detalle de atencion: ");
+	_flushall();
+	gets(reg.DetalleAtencion);
+	
+	fwrite(&reg, sizeof(turnos), 1, Turnos);
+	
+	fclose(Turnos);
+	fclose(Pro);
+	fclose(Clientes);
+	
+	system("cls");
+}
+
+void ListarAtenciones()
+{
+	
 }
 
 void MenuAdministracion()
