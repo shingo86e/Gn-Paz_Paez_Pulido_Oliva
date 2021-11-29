@@ -801,10 +801,12 @@ void MenuAdministracion()
 				break;
 				
 			case 3:
-				
+				AtencionesProfesionales();
+				break;
 				
 			case 4:
-				
+				RankingAtenciones();
+				break;
 				
 			default:
 				if(option!=0)
