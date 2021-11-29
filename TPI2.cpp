@@ -84,8 +84,8 @@ void MenuEspacios(cuentasProfe cuenta);
 void MenuRecepcion(usuarios cuenta);
 void MenuAdministracion();
 bool Login(int tipo, cuentasProfe& cP, usuarios& cR);
-void ListarEspera(cuentasProfe pro);
-void RegistrarEvolucion();
+int ListarEspera(cuentasProfe pro, fecha actual, bool listar);
+void RegistrarEvolucion(cuentasProfe pro, fecha actual, int& c);
 void RegistrarCliente();
 void RegistrarTurno();
 void ListarAtenciones();
@@ -265,9 +265,22 @@ bool Login(int tipo, cuentasProfe& cP, usuarios& cR)
 void MenuEspacios(cuentasProfe cuenta)
 {
 	int option;
+	fecha actual;
+	int CantTurnos;
+	
+	printf("Indique la fecha\n");
+	printf("Dia: ");
+	scanf("%d", &actual.dia);
+	printf("Mes: ");
+	scanf("%d", &actual.mes);
+	printf("Anio: ");
+	scanf("%d", &actual.anio);
+	
+	system("cls");
 	
 	do
 	{
+		CantTurnos = ListarEspera(cuenta, actual, false);
 		gotoxy(7,0);
 		printf("Modulo Espacios");
 		printf("\n=========================");
@@ -285,11 +298,12 @@ void MenuEspacios(cuentasProfe cuenta)
 		{
 			case 1:
 				system("cls");
-				ListarEspera(cuenta);
+				CantTurnos = ListarEspera(cuenta, actual, true);
 				break;
 				
 			case 2:
-				
+				RegistrarEvolucion(cuenta, actual, CantTurnos);
+				break;
 				
 			default:
 				if(option!=0)
@@ -312,23 +326,14 @@ void MenuEspacios(cuentasProfe cuenta)
 	system("cls");
 }
 
-void ListarEspera(cuentasProfe pro)
+int ListarEspera(cuentasProfe pro, fecha actual, bool listar)
 {
 	FILE *Turnos;
 	FILE *Clientes;
 	turnos reg;
 	cliente cli;
-	fecha actual;
 	int b = 0;
 	int i = 0;
-	
-	printf("Indique la fecha\n");
-	printf("Dia: ");
-	scanf("%d", &actual.dia);
-	printf("Mes: ");
-	scanf("%d", &actual.mes);
-	printf("Anio: ");
-	scanf("%d", &actual.anio);
 	
 	system("cls");
 	
@@ -353,7 +358,8 @@ void ListarEspera(cuentasProfe pro)
 				{
 					b = 1;
 					i++;
-					printf("[Turno %d] Nombre del Paciente: %s; DNI: %d; Domicilio: %s; Edad: %d; Peso: %.2f\n", i,cli.ApeNom, cli.DNI, cli.Domicilio, cli.edad, cli.Peso);
+					if(listar)
+					printf("[Turno %d] Nombre del Paciente: %s; DNI: %d\n", i,cli.ApeNom, cli.DNI);
 				}
 			}
 		}
@@ -363,14 +369,102 @@ void ListarEspera(cuentasProfe pro)
 	
 	fclose(Turnos);
 	fclose(Clientes);
+
+	if(listar)
+	getch();
+	system("cls");
+	
+	return i;
+}
+
+void RegistrarEvolucion(cuentasProfe pro, fecha actual, int& c)
+{
+	int turno;
+	FILE *Turnos;
+	FILE *Clientes;
+	turnos reg;
+	cliente cli;
+	int i = 0;
+	int b = 0;
+	int a = 0;
+	float volver;
+	long pos;
+	
+	system("cls");
+	
+	printf("Turno a atender (Del 1 al %d): ", c);
+	do
+	{
+		if(b != 0)
+		{
+			printf("Ingrese un turno valido\n");
+			printf("Turno a atender (Del 1 al %d): ", c);
+		}
+		scanf("%d", &turno);
+		b = 1;
+	}while(turno < 1 || turno > c);
+	
+	b = 0;
+	system("cls");
+	
+	Turnos = fopen("Turnos.dat", "r+b");
+	Clientes = fopen("Clientes.dat", "rb");
+	
+	rewind(Turnos);
+	
+	pos = ftell(Turnos);
+	fread(&reg, sizeof(turnos), 1, Turnos);
+	
+	while(!feof(Turnos) && a == 0)
+	{
+		if((actual.dia == reg.fecAtencion.dia) && (actual.mes == reg.fecAtencion.mes) && (actual.anio == reg.fecAtencion.anio) && (reg.IDProfesional == pro.datos.ID) && !reg.atendido)
+		{
+			rewind(Clientes);
+			
+			while(!feof(Clientes) && b != 1)
+			{
+				fread(&cli, sizeof(cliente), 1, Clientes);
+				
+				if(reg.DNICliente == cli.DNI)
+				{
+					b = 1;
+					i++;
+					if(i == turno)
+					a++;
+				}
+			}
+		}
+		b = 0;
+		//pos = ftell(Turnos);
+		
+		if(a == 0)
+		{
+			pos = ftell(Turnos);
+			fread(&reg, sizeof(turnos), 1, Turnos);
+		}
+		
+	}
+	
+	printf("====Datos para la atencion====\n");
+	printf("Nombre: %s\n", cli.ApeNom);
+	printf("DNI: %d\n", cli.DNI);
+	printf("Domicilio %s\n", cli.Domicilio);
+	printf("Edad: %d\n", cli.edad);
+	printf("Peso: %.2f\n\n", cli.Peso);
+	printf("Evolucion: ");
+	_flushall();
+	gets(reg.DetalleAtencion);
+	
+	reg.atendido = true;
+	
+	fseek(Turnos, pos, SEEK_SET);
+	fwrite(&reg, sizeof(turnos), 1, Turnos);
+	
+	fclose(Turnos);
+	fclose(Clientes);
 	
 	getch();
 	system("cls");
-}
-
-void RegistrarEvolucion()
-{
-	
 }
 
 void MenuRecepcion(usuarios cuenta)
