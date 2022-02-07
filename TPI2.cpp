@@ -771,7 +771,26 @@ void ListarAtenciones()
 
 void MenuAdministracion()
 {
-	int option;
+	int option,comparar,compararP;
+	char usuario[15],pass[33];
+	
+	gotoxy(1,0);
+	printf("Modulo Administracion");
+	printf("\n==========================");
+	printf("\nUsuario: ");
+	printf("\nContrasenia: ");
+	printf("\n==========================");
+	gotoxy(9,2);
+	_flushall();
+	gets(usuario);
+	gotoxy(13,3);
+	gets(pass);
+	comparar=strcmp(usuario,"PulidoLuciano");
+	comparar=strcmp(usuario,"micaapaez");
+	comparar=strcmp(usuario,"shingo86e");
+	compararP=strcmp(pass,"elMejorGrupo2021");
+	if (comparar==0 &&compararP==0)
+	{
 	
 	do
 	{
@@ -821,10 +840,9 @@ void MenuAdministracion()
 				system("cls");	
 		}
 	}while(option!=0);
-	if(option==0)
-	{
-		printf("\nSaliendo del programa...");
-	}
+}
+else 
+printf ("\nUsuario o contraseña no validas");
 	getch();
 	system("cls");
 }
@@ -1282,8 +1300,19 @@ void RegistrarRecepcionista()
 	system("cls");
 }
 
+void ConteoRegistroAdmin(int *pe)
+{
+    *pe=*pe+1;
+}
+void ConteoRegistroRecep(int *per)
+{
+    *per=*per+1;
+}
+
+
 void AtencionesProfesionales()
 {
+	
 	
 }
 
