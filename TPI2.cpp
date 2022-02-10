@@ -766,31 +766,52 @@ void RegistrarTurno()
 
 void ListarAtenciones()
 {
+	FILE* Turnos;
+	turnos reg;
+	int IDPro;
+	fecha fec;
 	
+	Turnos = fopen("Turnos.dat", "rb");
+	
+	printf("ID del profesional: ");
+	scanf("%d", &IDPro);
+	
+	printf("\n----Fecha----\n");
+	printf("Dia: ");
+	scanf("%d", &fec.dia);
+	printf("Mes: ");
+	scanf("%d", &fec.mes);
+	printf("Anio: ");
+	scanf("%d", &fec.anio);
+	
+	system("cls");
+	
+	printf("ID del profesional: %d \n", IDPro);
+	printf("Fecha: %d/%d/%d\n\n", fec.dia, fec.mes, fec.anio);
+	printf("------Listado de atenciones-----\n\n");
+	
+	rewind(Turnos);
+	
+	fread(&reg, sizeof(turnos), 1, Turnos);
+	
+	while(!feof(Turnos))
+	{	
+		if(reg.atendido == true && fec.dia == reg.fecAtencion.dia && fec.mes == reg.fecAtencion.mes && fec.anio == reg.fecAtencion.anio && IDPro == reg.IDProfesional)
+		{
+			printf("DNI del paciente: %d\n", reg.DNICliente);
+			printf("Detalle: %s\n\n", reg.DetalleAtencion);
+		}
+		
+		fread(&reg, sizeof(turnos), 1, Turnos);
+	}
+	
+	system("pause");
+	system("cls");
 }
 
 void MenuAdministracion()
 {
-	int option,comparar,compararP;
-	char usuario[15],pass[33];
-	
-	gotoxy(1,0);
-	printf("Modulo Administracion");
-	printf("\n==========================");
-	printf("\nUsuario: ");
-	printf("\nContrasenia: ");
-	printf("\n==========================");
-	gotoxy(9,2);
-	_flushall();
-	gets(usuario);
-	gotoxy(13,3);
-	gets(pass);
-	comparar=strcmp(usuario,"PulidoLuciano");
-	comparar=strcmp(usuario,"micaapaez");
-	comparar=strcmp(usuario,"shingo86e");
-	compararP=strcmp(pass,"elMejorGrupo2021");
-	if (comparar==0 &&compararP==0)
-	{
+	int option;
 	
 	do
 	{
@@ -800,10 +821,10 @@ void MenuAdministracion()
 		printf("\n Bienvenido");
 		printf("\n 1.- Registrar Profesional");
 		printf("\n 2.- Registrar Usuario Recepcionista");
-		printf("\n 3.- Atenciones por Profesional");
-		printf("\n 4.- Ranking de Profesionales por Atenciones");
+		printf("\n 3.- Ranking de Profesionales por Atenciones");
+		printf("\n 4.- Listar atenciones de un profesional");
 		printf("\n 0.- Cerrar la aplicacion.");
-		printf("\n Ingrese una opcion: ");
+		printf("\n\n Ingrese una opcion: ");
 		gotoxy(0,9);
 		printf("==========================");
 		gotoxy(21,8);
@@ -820,11 +841,11 @@ void MenuAdministracion()
 				break;
 				
 			case 3:
-				AtencionesProfesionales();
+				RankingAtenciones();
 				break;
 				
 			case 4:
-				RankingAtenciones();
+				AtencionesProfesionales();
 				break;
 				
 			default:
@@ -840,9 +861,10 @@ void MenuAdministracion()
 				system("cls");	
 		}
 	}while(option!=0);
-}
-else 
-printf ("\nUsuario o contraseña no validas");
+	if(option==0)
+	{
+		printf("\nSaliendo del programa...");
+	}
 	getch();
 	system("cls");
 }
@@ -1300,23 +1322,172 @@ void RegistrarRecepcionista()
 	system("cls");
 }
 
-void ConteoRegistroAdmin(int *pe)
-{
-    *pe=*pe+1;
-}
-void ConteoRegistroRecep(int *per)
-{
-    *per=*per+1;
-}
-
-
 void AtencionesProfesionales()
 {
+	FILE *Turnos;
+	FILE *Pro;
+	cuentasProfe profesionales[100];
+	turnos reg;
+	int ID;
+	int iP = 0;
+	int b = 0;
+	bool existe = false;
+	int salir;
 	
+	Pro = fopen("Profesionales.dat", "rb");
+	Turnos = fopen("Turnos.dat", "a+b");
 	
+	while(!feof(Pro))
+	{
+		fread(&profesionales[iP], sizeof(cuentasProfe), 1, Pro);
+		iP++;
+	}
+	do{
+		printf("ID del profesional: ");
+		scanf("%d", &ID);
+		
+		for(int j = 0; j < iP; j++)
+		{
+			if(profesionales[j].datos.ID == ID)
+			{
+				existe = true;
+			}
+		}
+		
+		if(!existe)
+		{
+			printf("Ingrese una ID valida!");
+		}
+	}while(!existe);
+	
+	printf("\n\n");
+	
+	if(existe)
+	{
+		fread(&reg, sizeof(turnos), 1, Turnos);
+		
+		while(!feof(Turnos))
+		{
+			if(reg.IDProfesional == ID)
+			{
+	
+				printf("DNI del paciente: %d\n", reg.DNICliente);
+				printf("Fecha: %d/%d/%d\n\n", reg.fecAtencion.dia, reg.fecAtencion.mes, reg.fecAtencion.anio);
+		
+			}
+			fread(&reg, sizeof(turnos), 1, Turnos);
+		}
+	}	
+	
+	fclose(Turnos);
+	fclose(Pro);
+	
+	system("pause");
+	system("cls");
 }
 
 void RankingAtenciones()
 {
+	FILE* Turnos;
+	FILE* Prof;
+	turnos tur;
+	cuentasProfe pro[50];
+	int atenciones[101][2];
+	int cantidadProfesionales = 0;
+	fecha fec;
+	int b = 0;
+	int o = 1;
+	int aux[2];
+	cuentasProfe auxPro;
 	
+	Turnos = fopen("Turnos.dat", "rb");
+	Prof = fopen("Profesionales.dat", "rb");
+	
+	printf("Mes: ");
+	scanf("%d", &fec.mes);
+	
+	printf("Anio: ");
+	scanf("%d", &fec.anio);
+	
+	system("cls");
+	
+	printf("------Listado de profesionales-----\n");
+	printf("En orden segun cantidad de atenciones, el primero recibe notificacion mensual\n\n");
+	printf("[Nombre del profesional][ID][DNI]: [Cantidad de atenciones]\n\n");
+	
+	rewind(Turnos);
+	
+	fread(&tur, sizeof(turnos), 1, Turnos);
+	
+	while(!feof(Turnos))
+	{	
+		if(tur.atendido == true && fec.mes == tur.fecAtencion.mes && fec.anio == tur.fecAtencion.anio)
+		{
+			for(int i = 0; i < cantidadProfesionales; i++)
+			{
+				if(atenciones[i][0] == tur.IDProfesional)
+				{
+					atenciones[i][1]++;
+					b = 1;
+				}
+			}
+			
+			if(b != 1)
+			{
+				atenciones[cantidadProfesionales][0] = tur.IDProfesional;
+				atenciones[cantidadProfesionales][1]++;
+				cantidadProfesionales++;
+			}
+		}
+		
+		fread(&tur, sizeof(turnos), 1, Turnos);
+		b = 0;
+	}
+	
+	for(int i = 0; i < cantidadProfesionales-1 && o == 1;i++)
+	{
+		o = 0;
+		for(int j = 0; j < cantidadProfesionales - i - 1; j++)
+		{
+			if(atenciones[j][1] < atenciones[j+1][1])
+			{
+				o = 1;
+				
+				aux[0] = atenciones[j][0];
+				aux[1] = atenciones[j][1];
+				
+				atenciones[j][0] = atenciones[j+1][0];
+				atenciones[j][1] = atenciones[j+1][1];
+				
+				atenciones[j+1][0] = aux[0];
+				atenciones[j+1][1] = aux[1];
+			}
+		}
+	}
+	
+	int c = 0;
+	
+	fread(&auxPro, sizeof(cuentasProfe), 1, Prof);
+	
+	while(!feof(Prof))
+	{
+		pro[c] = auxPro;
+		c++;
+		fread(&auxPro, sizeof(cuentasProfe), 1, Prof);
+	}
+	
+	for(int i = 0; i < cantidadProfesionales; i++)
+	{
+		for(int j = 0; j < c; j++)
+		{
+			if(atenciones[i][0] == pro[j].datos.ID)
+			{
+				printf("%s [%d][%d]: %d\n", pro[j].datos.ApeNom, pro[j].datos.ID, pro[j].datos.DNI, atenciones[i][1]);
+			}
+		}
+	}
+	
+	printf("\n\n");
+	system("pause");
+	system("cls");
 }
