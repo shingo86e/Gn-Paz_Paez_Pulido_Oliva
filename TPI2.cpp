@@ -970,9 +970,9 @@ void RegistrarProfesional()
 		if(contarCaracteres<6 || contarCaracteres>10)validar=false;//Cantidad mínima de 6 caracteres y máxima de 10
 		for(int i=0;i<contarCaracteres;i++)//los cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}
 		{
-			if(isdigit(reg.cuenta.Usuario[i])||isalpha(reg.cuenta.Usuario[i])||ispunct(reg.cuenta.Usuario[i]))	
+			if(isdigit(reg.cuenta.Usuario[i])||isalpha(reg.cuenta.Usuario[i])||ispunct(reg.cuenta.Usuario[i])||reg.cuenta.Usuario[i]=='+'||reg.cuenta.Usuario[i]=='-'||reg.cuenta.Usuario[i]=='/'||reg.cuenta.Usuario[i]=='*'||reg.cuenta.Usuario[i]=='?'||reg.cuenta.Usuario[i]=='¿'||reg.cuenta.Usuario[i]=='!'||reg.cuenta.Usuario[i]=='¡')	
 			{
-				//validar=true; Esta linea hace inutiles a las anteriores validaciones? REVISAR
+				validar=true;
 			}
 			else
 			{
@@ -1178,9 +1178,9 @@ void RegistrarRecepcionista()
 		if(contarCaracteres<6 || contarCaracteres>10)validar=false;//Cantidad mínima de 6 caracteres y máxima de 10
 		for(int i=0;i<contarCaracteres;i++)//los cuales podrán ser letras, números y/o símbolos del conjunto {+,-,/,*,?,¿,!,¡}
 		{
-			if(isdigit(reg.Usuario[i])||isalpha(reg.Usuario[i])||ispunct(reg.Usuario[i]))	
+			if(isdigit(reg.Usuario[i])||isalpha(reg.Usuario[i])||reg.Usuario[i]=='+'||reg.Usuario[i]=='-'||reg.Usuario[i]=='/'||reg.Usuario[i]=='*'||reg.Usuario[i]=='?'||reg.Usuario[i]=='¿'||reg.Usuario[i]=='!'||reg.Usuario[i]=='¡')	
 			{
-			//	validar=true;
+				validar=true;
 			}
 			else
 			{
