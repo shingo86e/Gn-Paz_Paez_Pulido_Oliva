@@ -318,6 +318,7 @@ void MenuEspacios(cuentasProfe cuenta)
 				system("cls");	
 		}
 	}while(option!=0);
+	
 	if(option==0)
 	{
 		printf("\nSaliendo del programa...");
@@ -605,7 +606,7 @@ void RegistrarCliente()
 		if(b != 0)
 		{
 			printf("Error! El Telefono debe ser mayor que 0\n");
-			printf("Anio: ");
+			printf("Telefono: ");
 		}
 		scanf("%d", &reg.Telefono);
 		b = 1;
